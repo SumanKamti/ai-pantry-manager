@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <div class="card shadow-lg p-4">
+            <h2 class="mb-4 fw-bold text-success">📸 Scan Ingredient</h2>
+            
+            <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="pills-camera-tab" data-bs-toggle="pill" data-bs-target="#pills-camera" type="button">Live Camera</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="pills-upload-tab" data-bs-toggle="pill" data-bs-target="#pills-upload" type="button">Upload File</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+                
+                <div class="tab-pane fade show active" id="pills-camera">
+                    <div class="camera-container mb-3" style="position: relative; display: inline-block;">
+                        <video id="video" width="100%" style="max-width: 400px; border-radius: 10px; border: 2px solid #ddd;" autoplay playsinline></video>
+                        <canvas id="canvas" style="display:none; max-width: 400px; border-radius: 10px;"></canvas>
+                    </div>
+                    
+                    <div class="d-grid gap-2 col-md-6 mx-auto">
+                        <button id="snap" class="btn btn-warning text-white fw-bold">🔵 Snap Photo</button>
+                        <button id="retake" class="btn btn-secondary" style="display:none;">Retake</button>
+                        
+                        <form method="POST" enctype="multipart/form-data" id="cameraForm" style="display:none;">
+                            <input type="file" name="file" id="cameraInput">
+                        </form>
+                        
+                        <button id="submitSnap" class="btn btn-success fw-bold" style="display:none;">✅ Analyze This Photo</button>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="pills-upload">
+                    <form method="POST" enctype="multipart/form-data" class="mt-4">
+                        <div class="mb-3">
+                            <input type="file" name="file" class="form-control" accept="image/*">
+                            <div class="form-text">Click to choose from gallery or open native camera app.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Analyze Upload</button>
+                    </form>
+                </div>
+            </div>
+
+            <a href="{{ url_for('dashboard') }}" class="mt-4 d-block text-decoration-none text-muted">Cancel & Go Back</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Elements
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const snapBtn = document.getElementById('snap');
+    const retakeBtn = document.getElementById('retake');
+    const submitBtn = document.getElementById('submitSnap');
+    const cameraInput = document.getElementById('cameraInput');
+    const cameraForm = document.getElementById('cameraForm');
+
+    // 1. Start Webcam
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            console.error("Camera Error:", err);
+            alert("Could not access camera. Please use the 'Upload File' tab.");
+        });
+
+    // 2. Snap Photo
+    snapBtn.addEventListener("click", () => {
+        // Draw video frame to canvas
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Toggle Views
+        video.style.display = "none";
+        canvas.style.display = "block";
+        snapBtn.style.display = "none";
+        retakeBtn.style.display = "inline-block";
+        submitBtn.style.display = "inline-block";
+
+        // Convert Canvas to File Object for the Form
+        canvas.toBlob(function(blob) {
+            // Create a file from the blob
+            const file = new File([blob], "webcam_snap.jpg", { type: "image/jpeg" });
+            
+            // Put this file into the hidden input
+            const container = new DataTransfer();
+            container.items.add(file);
+            cameraInput.files = container.files;
+        }, 'image/jpeg');
+    });
+
+    // 3. Retake
+    retakeBtn.addEventListener("click", () => {
+        video.style.display = "block";
+        canvas.style.display = "none";
+        snapBtn.style.display = "inline-block";
+        retakeBtn.style.display = "none";
+        submitBtn.style.display = "none";
+    });
+
+    // 4. Submit
+    submitBtn.addEventListener("click", () => {
+        // Just submit the hidden form
+        if (cameraInput.files.length > 0) {
+            cameraForm.submit();
+        } else {
+            alert("Please snap a photo first!");
+        }
+    });
+</script>
+{% endblock %}

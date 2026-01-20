@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">🥑 My Pantry</h5>
+                <span class="badge bg-secondary">{{ items|length }} Items</span>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for item in items %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                       <span>{{ item.name|title }}</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-2" onclick="editItem('{{ item.id }}', '{{ item.name }}')">✏️</button>            
+                            <a href="{{ url_for('delete_item', id=item.id) }}" class="text-danger text-decoration-none">×</a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="list-group-item text-center text-muted py-5">Your pantry is empty. Scan something!</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card p-4 text-center">
+            <h5>What do you want to do?</h5>
+            <div class="d-grid gap-3 mt-3">
+                <a href="{{ url_for('scan') }}" class="btn btn-primary btn-lg">
+                    📸 Scan New Ingredient
+                </a>
+                <a href="{{ url_for('get_recipes') }}" class="btn btn-warning btn-lg text-white">
+                    🍛 Find Recipes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function editItem(id, oldName) {
+        let newName = prompt("AI got it wrong? Enter correct name:", oldName);
+        if (newName && newName !== oldName) {
+            window.location.href = "/edit_item/" + id + "/" + newName;
+        }
+    }
+</script>
+{% endblock %}
