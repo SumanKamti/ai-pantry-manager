@@ -1,40 +1,88 @@
 {% extends "layout.html" %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>🍽️ Recommended Recipes</h2>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Back to Pantry</a>
-</div>
 
-<div class="row">
-    {% for recipe in recipes %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.title }}" style="height: 200px; object-fit: cover;">
-            <div class="card-body">
-                <h5 class="card-title">{{ recipe.title }}</h5>
-                <p class="text-muted small">Ready in {{ recipe.readyInMinutes }} mins</p>
-                
-                <div class="mb-2">
-                    <span class="badge bg-success">You have: {{ recipe.usedIngredientCount }}</span>
-                    <span class="badge bg-danger">Missing: {{ recipe.missedIngredientCount }}</span>
-                </div>
-                
-                <p class="small text-danger">
-                    Missing: 
-                    {% for ing in recipe.missedIngredients[:3] %}
-                        {{ ing.name }},
-                    {% endfor %}...
-                </p>
-                
-                <a href="{{ recipe.sourceUrl }}" target="_blank" class="btn btn-outline-primary w-100 mt-2">View Full Recipe</a>
+{% block title %}Recipes - PantryPal{% endblock %}
+
+{% block content %}
+<style>
+    .recipe-bg { background: #f8f9fa; min-height: 90vh; padding: 3rem 0; }
+    
+    .recipe-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: 0.3s;
+        height: 100%;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .recipe-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .recipe-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .badge-missing {
+        background: #fff3cd; color: #856404;
+        font-size: 0.8rem; padding: 5px 10px; border-radius: 20px;
+    }
+</style>
+
+<div class="recipe-bg">
+    <div class="container">
+        
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="fw-bold mb-0">Recommended For You 🍳</h2>
+                <p class="text-muted">Based on your pantry items.</p>
             </div>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-dark rounded-pill">
+                <i class="bi bi-arrow-left me-2"></i> Back to Pantry
+            </a>
         </div>
+
+        {% if recipes %}
+        <div class="row g-4">
+            {% for recipe in recipes %}
+            <div class="col-md-6 col-lg-4">
+                <div class="recipe-card">
+                    <img src="{{ recipe.image }}" class="recipe-img" alt="{{ recipe.title }}">
+                    
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">{{ recipe.title }}</h5>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge-missing">
+                                <i class="bi bi-cart-x me-1"></i> Missing: {{ recipe.missedIngredientCount }}
+                            </span>
+                            <span class="text-success small fw-bold">
+                                <i class="bi bi-check-circle-fill me-1"></i> Has: {{ recipe.usedIngredientCount }}
+                            </span>
+                        </div>
+
+                        <div class="d-grid">
+                            <a href="https://spoonacular.com/recipes/{{ recipe.title|replace(' ', '-') }}-{{ recipe.id }}" target="_blank" class="btn btn-success rounded-pill">
+                                View Full Recipe
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" width="150" class="mb-4 opacity-50">
+            <h3>No recipes found yet!</h3>
+            <p class="text-muted">Try adding common staples like 'Onion', 'Tomato', or 'Rice' to your pantry.</p>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary rounded-pill mt-3">Go to Pantry</a>
+        </div>
+        {% endif %}
+
     </div>
-    {% else %}
-    <div class="col-12 text-center py-5">
-        <h4 class="text-muted">No recipes found.</h4>
-        <p>Try adding common staples like 'Onion', 'Tomato', or 'Rice' to your pantry.</p>
-    </div>
-    {% endfor %}
 </div>
 {% endblock %}

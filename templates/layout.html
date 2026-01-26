@@ -3,43 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PantryPal AI</title>
+    <title>{% block title %}PantryPal{% endblock %}</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body { background-color: #f8f9fa; min-height: 100vh; }
-        .navbar-brand { font-weight: bold; letter-spacing: 1px; }
-        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa; /* Default light background */
+        }
+        .navbar-custom {
+            background-color: #198754; /* Success Green */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+        }
+        .nav-link:hover {
+            color: white !important;
+            opacity: 1;
+        }
+        .btn-login {
+            border: 2px solid white;
+            color: white;
+            border-radius: 50px;
+            padding: 5px 20px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .btn-login:hover {
+            background: white;
+            color: #198754;
+        }
     </style>
+    
+    {% block head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4">
+
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('home') }}">🥗 PantryPal</a>
-            <div>
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-light me-2">My Pantry</a>
-                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-warning">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-light">Login</a>
-                {% endif %}
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="bi bi-basket2-fill me-2"></i>PantryPal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item me-3">
+                        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link" href="{{ url_for('scan') }}">Scan</a>
+                    </li>
+                    
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" href="/dashboard">Hi, {{ current_user.username }}</a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a class="btn-login bg-danger border-0" href="/logout">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="btn-login" href="{{ url_for('login') }}">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for msg in messages %}
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        {{ msg }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
+    <main>
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

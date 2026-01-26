@@ -1,25 +1,195 @@
 {% extends "layout.html" %}
+
+{% block title %}Register - PantryPal{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card p-4">
-            <h3 class="text-center mb-3">Register</h3>
-            <form method="POST">
-                <div class="mb-3">
-                    <label>Username</label>
-                    <input type="text" name="username" class="form-control" required>
+<style>
+    /* 1. BACKGROUND & CARD (Same as before) */
+    .auth-bg {
+        background-color: #0f2027;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.6)), 
+                          url('https://images.unsplash.com/photo-1543353071-873f17a7a088?q=80&w=2070&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .auth-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 2.5rem;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 450px;
+        color: white;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+
+    /* 2. INPUT FIELDS & GROUPS */
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        opacity: 0.8;
+        margin-bottom: 5px;
+    }
+
+    /* Custom style for the input group to look like glass */
+    .input-group-custom {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        overflow: hidden; /* Ensures child elements don't spill out */
+        display: flex;
+    }
+
+    .form-control-glass {
+        background: transparent;
+        border: none;
+        color: white;
+        padding: 12px;
+        flex-grow: 1; /* Takes up remaining space */
+        outline: none;
+    }
+    
+    .form-control-glass:focus {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    /* Change autocomplete yellow background */
+    .form-control-glass:-webkit-autofill,
+    .form-control-glass:-webkit-autofill:hover, 
+    .form-control-glass:-webkit-autofill:focus {
+        -webkit-text-fill-color: white;
+        -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.1) inset;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .form-control-glass::placeholder { color: rgba(255, 255, 255, 0.5); }
+
+    /* The clickable eye icon button */
+    .btn-eye {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        padding: 0 15px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .btn-eye:hover { color: #4ade80; }
+
+
+    /* 3. BUTTONS & LINKS */
+    .btn-auth {
+        background: linear-gradient(45deg, #11998e, #38ef7d);
+        border: none;
+        width: 100%;
+        padding: 12px;
+        font-weight: bold;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        margin-top: 1.5rem;
+        transition: 0.3s;
+        color: white;
+    }
+    .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+    }
+
+    .auth-link { color: #4ade80; text-decoration: none; font-weight: 600; }
+    .auth-link:hover { text-decoration: underline; }
+    
+    /* Error alert style */
+    .alert-glass-danger {
+        background: rgba(220, 53, 69, 0.2);
+        border: 1px solid rgba(220, 53, 69, 0.4);
+        color: #ff8a8a;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="auth-bg">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Create Account</h2>
+            <p class="opacity-75 small">Join PantryPal to start cooking smarter.</p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-glass-danger py-2 text-center small mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ messages[0] }}
                 </div>
-                <div class="mb-3">
-                    <label>Email</label>
-                    <input type="email" name="email" class="form-control" required>
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('register') }}" method="POST" autocomplete="off">
+            
+            <div class="mb-3">
+                <label class="form-label text-uppercase">Username</label>
+                <div class="input-group-custom">
+                    <input type="text" name="username" class="form-control-glass" placeholder="e.g. ChefRahul" required autocomplete="new-username">
                 </div>
-                <div class="mb-3">
-                    <label>Password</label>
-                    <input type="password" name="password" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-uppercase">Email Address</label>
+                <div class="input-group-custom">
+                    <input type="email" name="email" class="form-control-glass" placeholder="name@example.com" required autocomplete="new-email">
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
-            </form>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-uppercase">Password</label>
+                <div class="input-group-custom">
+                    <input type="password" name="password" class="form-control-glass" id="regPassword" placeholder="••••••••" required autocomplete="new-password">
+                    <button type="button" class="btn-eye" onclick="togglePassword('regPassword', this)">
+                        <i class="bi bi-eye-slash-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-uppercase">Confirm Password</label>
+                <div class="input-group-custom">
+                    <input type="password" name="confirm_password" class="form-control-glass" id="regConfirmPassword" placeholder="••••••••" required autocomplete="new-password">
+                    <button type="button" class="btn-eye" onclick="togglePassword('regConfirmPassword', this)">
+                        <i class="bi bi-eye-slash-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-auth">Register</button>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="small opacity-75">Already have an account? <a href="{{ url_for('login') }}" class="auth-link">Login here</a></p>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePassword(inputId, buttonElement) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = buttonElement.querySelector('i');
+
+        // Toggle between password and text mode
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove('bi-eye-slash-fill');
+            icon.classList.add('bi-eye-fill');
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove('bi-eye-fill');
+            icon.classList.add('bi-eye-slash-fill');
+        }
+    }
+</script>
+
 {% endblock %}
