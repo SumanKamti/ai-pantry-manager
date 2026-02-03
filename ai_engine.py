@@ -3,7 +3,7 @@ import google.generativeai as genai
 
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 if not GOOGLE_API_KEY:
-    GOOGLE_API_KEY = "AIzaSyBCKnCaJbOT9WFzz8N3b_xVQA2ktu15npM"
+    GOOGLE_API_KEY = "________" #Enter your API key
 
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-flash-latest')
