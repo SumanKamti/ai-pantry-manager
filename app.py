@@ -11,7 +11,13 @@ app = Flask(__name__)
 
 # --- CONFIGURATION ---
 app.config['SECRET_KEY'] = 'supersecretkey123' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pantry.db'
+
+# OLD (SQLite) 
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pantry.db'
+
+# NEW (PostgreSQL):
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/pantry_db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -194,7 +200,7 @@ def get_recipes():
     ingredient_string = ",".join(selected)
     
     # 3. Spoonacular API Setup
-    API_KEY = "70d76ed0153049a6be5e0e8f2b92b7f8"  # ⚠️ Don't forget to put your key here!
+    API_KEY = "70d76ed0153049a6be5e0e8f2b92b7f8"  
     
     url = "https://api.spoonacular.com/recipes/complexSearch"
     

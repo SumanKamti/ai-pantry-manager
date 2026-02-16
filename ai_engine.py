@@ -1,41 +1,38 @@
 import os
-import google.generativeai as genai
 
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-if not GOOGLE_API_KEY:
-    GOOGLE_API_KEY = "________" #Enter your API key
+# Define where your future model will live
+# (You will save your .h5 or .tflite file here later)
+MODEL_PATH = os.path.join('static', 'model', 'food_model.h5')
 
-genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-flash-latest')
+def identify_food(image_path):
+    print(f"\n--- DEBUG: AI ENGINE STARTED ---")
+    print(f"1. Reading image from: {image_path}")
 
-def identify_food(img_path):
+    # 1. Check if the image exists
+    if not os.path.exists(image_path):
+        print(f"ERROR: Image file not found at {image_path}")
+        return "Unknown", "0.0"
+
+    # 2. Check if the AI Model exists
+    if not os.path.exists(MODEL_PATH):
+        print(f"⚠️ WARNING: Model file not found at {MODEL_PATH}")
+        print("   (The custom model is currently being trained. Returning 'Unknown' for now.)")
+        return "Unknown", "0.0"
+
+    # 3. If Model Exists -> Load and Predict (Future Logic)
     try:
-        print(f"AI Engine: Analyzing {img_path} with Gemini...")
-        with open(img_path, 'rb') as f:
-            image_data = f.read()
+        print("2. Loading Custom Model...")
+        # ---------------------------------------------------------
+        # TODO: Add your TensorFlow/Keras loading code here later
+        # Example:
+        # model = tf.keras.models.load_model(MODEL_PATH)
+        # prediction = model.predict(image)
+        # label = decode_prediction(prediction)
+        # ---------------------------------------------------------
+        
+        # For now, this part won't run because the file doesn't exist.
+        return "Simulated Label", "99.0"
 
-        from PIL import Image
-        img = Image.open(img_path)
-
-        response = model.generate_content([
-            img
-        ])
-        
-        # Extract text
-        prediction = response.text.strip()
-        
-        # Simple cleanup
-        prediction = prediction.replace('\n', '').replace('.', '')
-        
-        print(f"AI Engine: Gemini identified '{prediction}'")
-        
-        return prediction
-        
     except Exception as e:
-        error_msg = str(e)
-        print(f"AI Error: {error_msg}")
-        
-        if "429" in error_msg:
-            return "Quota Exceeded (Try later)", 0.0
-            
-        return "Unknown", 0.0
+        print(f"❌ MODEL CRASHED: {e}")
+        return "Unknown", "0.0"
