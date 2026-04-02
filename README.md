@@ -53,25 +53,21 @@ pip install -r requirements.txt
 ```
 
 **4. Database Configuration**
-```
 Ensure PostgreSQL is installed and running on your local machine. Create a database named pantry_db. Update the SQLALCHEMY_DATABASE_URI in app.py if your Postgres credentials differ:
-Python
+```Python
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/pantry_db'
 ```
 
 **5. Add your AI Model**
-```
-Ensure your compiled Keras model (food_model.keras) is placed in the root directory next to app.py.
-```
+Ensure your compiled Keras model *(food_model.keras)* is placed in the root directory next to *app.py*.
 
 **6. Run the Application**
-```
-Bash
+```bash
 python app.py
-The application will be available at http://127.0.0.1:5000.
 ```
+The application will be available at **http://127.0.0.1:5000**.
 
-**Future Scope**
+## Future Scope
 * Dataset Expansion: Scale the training dataset to 500+ images per class to improve real-world validation accuracy and generalization.
 * Fine-Tuning: Unfreeze the top layers of the MobileNetV2 base to allow for deeper feature extraction specific to grocery items.
 * Multi-Item Detection: Transition from single-image classification to object detection (e.g., YOLO) to scan multiple pantry items in a single photo.
