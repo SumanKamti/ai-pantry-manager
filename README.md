@@ -40,32 +40,38 @@ Follow these steps to run the project locally on your machine.
 ```bash
 git clone [https://github.com/yourusername/snapcook.git](https://github.com/yourusername/snapcook.git)
 cd snapcook
-
-
-Bash
+```
+**2. Set up a Virtual Environment**
+```bash
 python -m venv venv
 source venv/bin/activate  # On Windows use: venv\Scripts\activate
-3. Install Dependencies
+```
 
-Bash
+**3. Install Dependencies**
+```bash
 pip install -r requirements.txt
-4. Database Configuration
-Ensure PostgreSQL is installed and running on your local machine. Create a database named pantry_db. Update the SQLALCHEMY_DATABASE_URI in app.py if your Postgres credentials differ:
+```
 
+**4. Database Configuration**
+```
+Ensure PostgreSQL is installed and running on your local machine. Create a database named pantry_db. Update the SQLALCHEMY_DATABASE_URI in app.py if your Postgres credentials differ:
 Python
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/pantry_db'
-5. Add your AI Model
+```
+
+**5. Add your AI Model**
+```
 Ensure your compiled Keras model (food_model.keras) is placed in the root directory next to app.py.
+```
 
-6. Run the Application
-
+**6. Run the Application**
+```
 Bash
 python app.py
 The application will be available at http://127.0.0.1:5000.
+```
 
-🔮 Future Scope
-Dataset Expansion: Scale the training dataset to 500+ images per class to improve real-world validation accuracy and generalization.
-
-Fine-Tuning: Unfreeze the top layers of the MobileNetV2 base to allow for deeper feature extraction specific to grocery items.
-
-Multi-Item Detection: Transition from single-image classification to object detection (e.g., YOLO) to scan multiple pantry items in a single photo.
+**Future Scope**
+* Dataset Expansion: Scale the training dataset to 500+ images per class to improve real-world validation accuracy and generalization.
+* Fine-Tuning: Unfreeze the top layers of the MobileNetV2 base to allow for deeper feature extraction specific to grocery items.
+* Multi-Item Detection: Transition from single-image classification to object detection (e.g., YOLO) to scan multiple pantry items in a single photo.
