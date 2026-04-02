@@ -1,19 +1,14 @@
 import os
 import requests
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from ai_engine import identify_food  # Import our AI function
+from ai_engine import identify_food  
 
 app = Flask(__name__)
-
-# --- CONFIGURATION ---
-app.config['SECRET_KEY'] = 'supersecretkey123' 
-
-# OLD (SQLite) 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pantry.db'
+app.config['SECRET_KEY'] = 'supersecretkey123'
 
 # NEW (PostgreSQL):
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/pantry_db'
@@ -21,8 +16,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/p
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-# Create upload folder if missing
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
@@ -34,7 +27,7 @@ login_manager.login_view = 'login'
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False) # THIS WAS MISSING
+    email = db.Column(db.String(150), unique=True, nullable=False) 
     password = db.Column(db.String(150), nullable=False)
 
 
@@ -51,7 +44,6 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --- ROUTES ---
-
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -65,15 +57,16 @@ def register():
         confirm_password = request.form.get('confirm_password')
 
         if password != confirm_password:
-            flash('Error: Passwords do not match!')
+            flash('Error: Passwords do not match!', 'danger')
             return redirect(url_for('register'))
 
         user_exists = User.query.filter_by(email=email).first()
         if user_exists:
-            flash('Error: Email already registered. Please login.')
+            flash('Error: Email already registered. Please login.', 'danger')
             return redirect(url_for('login'))
 
-        new_user = User(username=username, email=email, password=password) 
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        new_user = User(username=username, email=email, password=hashed_password)
         
         db.session.add(new_user)
         db.session.commit()
@@ -95,7 +88,7 @@ def login():
         
         if user:
             print(f"DEBUG: User Found! stored_password: '{user.password}' vs input_password: '{password}'")
-            if user.password == password:
+            if check_password_hash(user.password, password):
                 login_user(user)
                 flash('Login successful!', 'success')
                 return redirect(url_for('dashboard'))
@@ -111,8 +104,12 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    # 1. Clear stuck messages before logging out
+    session.pop('_flashes', None)
+    # 2. Log out the user
     logout_user()
-    flash('Logged out successfully.')
+    # 3. Add the clean logout message
+    flash('Logged out successfully.', 'success')
     return redirect(url_for('home'))
 
 @app.route('/dashboard')
@@ -128,7 +125,7 @@ def delete_item(id):
     if item and item.user_id == current_user.id:
         db.session.delete(item)
         db.session.commit()
-        flash('Item removed.')
+        flash('Item removed.', 'success')
     return redirect(url_for('dashboard'))
 
 @app.route('/scan', methods=['GET', 'POST'])
@@ -137,7 +134,6 @@ def scan():
     if request.method == 'POST':
         print("DEBUG: Scan request received!") 
         
-        # 1. Check if image is present
         if 'image' not in request.files:
             flash('No file part', 'danger')
             return redirect(request.url)
@@ -180,16 +176,11 @@ def scan():
 @app.route('/get_recipes', methods=['GET', 'POST'])
 @login_required
 def get_recipes():
-    # 1. Get User Preference (Veg vs Non-Veg)
-    # Default is 'all' (Non-Veg/No Restriction)
     diet_filter = request.args.get('diet', 'all') 
     
-    # 2. Get Ingredients
     if request.method == 'POST':
         selected = request.form.getlist('selected_ingredients')
     else:
-        # If just switching Veg/Non-Veg, keep previous ingredients if possible
-        # For now, we default to "All Pantry Items" to keep it simple
         items = PantryItem.query.filter_by(user_id=current_user.id).all()
         selected = [item.name for item in items]
 
@@ -214,7 +205,6 @@ def get_recipes():
         'ignorePantry': True
     }
 
-    # 4. APPLY THE VEG FILTER
     if diet_filter == 'veg':
         params['diet'] = 'vegetarian'
         print("DEBUG: Searching for VEG recipes only.")
@@ -229,16 +219,14 @@ def get_recipes():
         print(f"Error: {e}")
         recipes = []
 
-    # Pass the current 'diet_filter' back to HTML so we know which button to highlight
     return render_template('recipes.html', recipes=recipes, current_diet=diet_filter)
 
-# --- 2. EDIT ITEM ROUTE (For the Pencil Icon) ---
+# --- EDIT ITEM ROUTE---
 @app.route('/edit_item/<int:id>', methods=['POST'])
 @login_required
 def edit_item(id):
     item = PantryItem.query.get_or_404(id)
     
-    # Security Check: Ensure user owns this item
     if item.user_id != current_user.id:
         flash('Unauthorized action.', 'danger')
         return redirect(url_for('dashboard'))

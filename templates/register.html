@@ -4,7 +4,6 @@
 
 {% block content %}
 <style>
-    /* 1. BACKGROUND & CARD (Same as before) */
     .auth-bg {
         background-color: #0f2027;
         background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.6)), 
@@ -30,7 +29,6 @@
         box-shadow: 0 15px 35px rgba(0,0,0,0.5);
     }
 
-    /* 2. INPUT FIELDS & GROUPS */
     .form-label {
         font-size: 0.85rem;
         font-weight: 700;
@@ -39,12 +37,12 @@
         margin-bottom: 5px;
     }
 
-    /* Custom style for the input group to look like glass */
+
     .input-group-custom {
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 10px;
-        overflow: hidden; /* Ensures child elements don't spill out */
+        overflow: hidden;
         display: flex;
     }
 
@@ -53,7 +51,7 @@
         border: none;
         color: white;
         padding: 12px;
-        flex-grow: 1; /* Takes up remaining space */
+        flex-grow: 1; 
         outline: none;
     }
     
@@ -61,7 +59,7 @@
         background: rgba(255, 255, 255, 0.2);
         color: white;
     }
-    /* Change autocomplete yellow background */
+
     .form-control-glass:-webkit-autofill,
     .form-control-glass:-webkit-autofill:hover, 
     .form-control-glass:-webkit-autofill:focus {
@@ -72,7 +70,7 @@
 
     .form-control-glass::placeholder { color: rgba(255, 255, 255, 0.5); }
 
-    /* The clickable eye icon button */
+
     .btn-eye {
         background: transparent;
         border: none;
@@ -84,7 +82,7 @@
     .btn-eye:hover { color: #4ade80; }
 
 
-    /* 3. BUTTONS & LINKS */
+  
     .btn-auth {
         background: linear-gradient(45deg, #11998e, #38ef7d);
         border: none;
@@ -105,7 +103,7 @@
     .auth-link { color: #4ade80; text-decoration: none; font-weight: 600; }
     .auth-link:hover { text-decoration: underline; }
     
-    /* Error alert style */
+  
     .alert-glass-danger {
         background: rgba(220, 53, 69, 0.2);
         border: 1px solid rgba(220, 53, 69, 0.4);
@@ -179,7 +177,7 @@
         const passwordInput = document.getElementById(inputId);
         const icon = buttonElement.querySelector('i');
 
-        // Toggle between password and text mode
+       
         if (passwordInput.type === "password") {
             passwordInput.type = "text";
             icon.classList.remove('bi-eye-slash-fill');

@@ -5,7 +5,7 @@
 {% block content %}
 <style>
     .scan-bg {
-        background-color: #0f2027; /* Dark background for camera focus */
+        background-color: #0f2027; 
         min-height: 90vh;
         display: flex;
         align-items: center;
@@ -36,7 +36,7 @@
         overflow: hidden;
     }
 
-    /* The glowing scan line animation */
+
     .scan-line {
         position: absolute;
         width: 100%;
@@ -70,7 +70,7 @@
         display: inline-block;
     }
 
-    /* Custom File Upload Styling */
+  
     .file-upload-wrapper {
         position: relative;
         overflow: hidden;
@@ -113,7 +113,6 @@
 </div>
 
 <script>
-    // Show loading spinner when file is selected
     document.querySelector('input[type="file"]').addEventListener('change', function() {
         document.getElementById('loadingMsg').classList.remove('d-none');
     });
