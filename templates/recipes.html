@@ -195,9 +195,8 @@
                                   <div class="meta-item"><i class="bi bi-clock"></i> {{ recipe.readyInMinutes }} mins</div>
                                   <div class="meta-item"><i class="bi bi-people"></i> {{ recipe.servings }} servings</div>
                               </div>
-                              <div class="ingredient-status">
-                                  <span class="status-has"><i class="bi bi-check-circle-fill"></i> Has: {{ recipe.usedIngredientCount }}</span>
-                                  <span class="status-missing"><i class="bi bi-cart"></i> Missing: {{ recipe.missedIngredientCount }}</span>
+                              <div class="ingredient-status" style="background: #e8f5e9; justify-content: center;">
+                                  <span class="status-has"><i class="bi bi-check-circle-fill"></i> All {{ recipe.usedIngredientCount }} ingredients in pantry ✓</span>
                               </div>
                               <a href="{{ recipe.spoonacularSourceUrl }}" target="_blank" class="btn-view">
                                   View Full Recipe <i class="bi bi-arrow-right ms-1"></i>
@@ -231,9 +230,8 @@
                                   <div class="meta-item"><i class="bi bi-clock"></i> {{ recipe.readyInMinutes }} mins</div>
                                   <div class="meta-item"><i class="bi bi-people"></i> {{ recipe.servings }} servings</div>
                               </div>
-                              <div class="ingredient-status">
-                                  <span class="status-has"><i class="bi bi-check-circle-fill"></i> Has: {{ recipe.usedIngredientCount }}</span>
-                                  <span class="status-missing"><i class="bi bi-cart"></i> Missing: {{ recipe.missedIngredientCount }}</span>
+                              <div class="ingredient-status" style="background: #e8f5e9; justify-content: center;">
+                                  <span class="status-has"><i class="bi bi-check-circle-fill"></i> All {{ recipe.usedIngredientCount }} ingredients in pantry ✓</span>
                               </div>
                               <a href="{{ recipe.spoonacularSourceUrl }}" target="_blank" class="btn-view">
                                   View Full Recipe <i class="bi bi-arrow-right ms-1"></i>

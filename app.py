@@ -214,8 +214,8 @@ def get_recipes():
         response = requests.get(url, params=params)
         data = response.json()
         all_recipes = data.get('results', [])
-        # Strict filter: only show recipes with 2 or fewer missing ingredients
-        recipes = [r for r in all_recipes if r.get('missedIngredientCount', 100) <= 2]
+        # Strict zero-waste filter: only show recipes where ALL ingredients are in pantry
+        recipes = [r for r in all_recipes if r.get('missedIngredientCount', 100) == 0]
 
     except Exception as e:
         logger.error(f"Spoonacular API error: {e}")
