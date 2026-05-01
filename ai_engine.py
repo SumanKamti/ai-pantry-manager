@@ -1,7 +1,11 @@
 import os
+import logging
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 MODEL_PATH = 'food_model.keras' 
 
@@ -18,56 +22,61 @@ CLASS_LABELS = [
     "strawberry", "sweet potato", "taro root", "walnut", "watermelon"
 ]
 
-print("\n--- INITIALIZING AI ENGINE ---")
+# --- Initialize AI Model ---
+logger.info("Initializing AI Engine...")
 try:
     if os.path.exists(MODEL_PATH):
-        print(f"Loading AI Model from {MODEL_PATH}... Please wait.")
+        logger.info(f"Loading AI Model from {MODEL_PATH}...")
         model = load_model(MODEL_PATH)
-        print("✅ AI Model loaded successfully!")
+        logger.info("AI Model loaded successfully.")
     else:
         model = None
-        print(f"❌ WARNING: Model file not found at {MODEL_PATH}")
+        logger.warning(f"Model file not found at {MODEL_PATH}")
 except Exception as e:
     model = None
-    print(f"❌ ERROR loading model: {e}")
+    logger.error(f"Error loading model: {e}")
 
 
 def identify_food(image_path):
-    print(f"\n--- DEBUG: AI ENGINE SCAN STARTED ---")
-    print(f"1. Reading image from: {image_path}")
-
+    """
+    Identifies a food item from an image using the trained MobileNetV2 model.
+    
+    Args:
+        image_path (str): Path to the image file.
+        
+    Returns:
+        tuple: (predicted_label, confidence_percentage)
+               Returns ("Unknown", 0.0) on error.
+    """
     if not os.path.exists(image_path):
-        print(f"ERROR: Image file not found at {image_path}")
+        logger.error(f"Image file not found: {image_path}")
         return "Unknown", 0.0
 
     if model is None:
-        print("ERROR: Model is not loaded. Cannot predict.")
+        logger.error("Model is not loaded. Cannot predict.")
         return "Unknown", 0.0
 
     try:
-        print("2. Preprocessing image to match model requirements...")
+        # Preprocess image to match model input requirements
         img = image.load_img(image_path, target_size=(224, 224))
-        
         img_array = image.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)
         img_array = img_array / 255.0 
 
-        print("3. Feeding image to the Neural Network...")
+        # Run prediction
         predictions = model.predict(img_array)
-
         predicted_class_index = np.argmax(predictions[0])
         confidence = float(predictions[0][predicted_class_index])
-
         predicted_label = CLASS_LABELS[predicted_class_index]
         
-        print(f"✅ SUCCESS: AI predicts '{predicted_label}' with {confidence*100:.2f}% confidence")
+        logger.info(f"Prediction: '{predicted_label}' with {confidence*100:.2f}% confidence")
         
         if confidence < 0.60:
-            print(f"⚠️ Low confidence ({confidence*100:.2f}%). Rejecting prediction.")
-            return f"Not sure (Looks like {predicted_label}?)", round(confidence * 100, 2)
+            logger.warning(f"Low confidence ({confidence*100:.2f}%). Rejecting prediction.")
+            return predicted_label, round(confidence * 100, 2)
 
         return predicted_label, round(confidence * 100, 2)
 
     except Exception as e:
-        print(f"❌ MODEL CRASHED during prediction: {e}")
+        logger.error(f"Model prediction failed: {e}")
         return "Unknown", 0.0

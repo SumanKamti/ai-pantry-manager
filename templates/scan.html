@@ -116,10 +116,5 @@
     document.querySelector('input[type="file"]').addEventListener('change', function() {
         document.getElementById('loadingMsg').classList.remove('d-none');
     });
-    document.querySelector('form').addEventListener('submit', function() {
-        const btn = document.getElementById('scanButton');
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> AI is analyzing image...';
-        btn.classList.add('disabled');
-    });
 </script>
 {% endblock %}

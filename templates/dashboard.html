@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}My Pantry - PantryPal{% endblock %}
+{% block title %}My Pantry - SnapCook{% endblock %}
 
 {% block content %}
 <style>
@@ -144,9 +144,11 @@
                             <i class="bi bi-pencil-fill" style="font-size: 0.8rem;"></i>
                         </button>
 
-                        <a href="{{ url_for('delete_item', id=item.id) }}" class="btn-icon-circle delete-btn">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                        <form action="{{ url_for('delete_item', id=item.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-icon-circle delete-btn" onclick="return confirm('Remove this item?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

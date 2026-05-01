@@ -1,22 +1,36 @@
 import os
+import logging
 import requests
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 from ai_engine import identify_food  
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'supersecretkey123'
+# Load environment variables from .env file
+load_dotenv()
 
-# NEW (PostgreSQL):
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/pantry_db'
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24).hex())
+
+# PostgreSQL Database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 'postgresql://postgres:admin@localhost/pantry_db'
+)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Spoonacular API Key (loaded from environment)
+SPOONACULAR_API_KEY = os.environ.get('SPOONACULAR_API_KEY', '')
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -28,7 +42,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False) 
-    password = db.Column(db.String(150), nullable=False)
+    password = db.Column(db.String(256), nullable=False)
 
 
 class PantryItem(db.Model):
@@ -82,21 +96,16 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        print(f"DEBUG: Trying to login with Email: {email}")
-        
         user = User.query.filter_by(email=email).first()
         
         if user:
-            print(f"DEBUG: User Found! stored_password: '{user.password}' vs input_password: '{password}'")
             if check_password_hash(user.password, password):
                 login_user(user)
                 flash('Login successful!', 'success')
                 return redirect(url_for('dashboard'))
             else:
-                print("DEBUG: Password mismatch.")
                 flash('Incorrect password.', 'danger')
         else:
-            print("DEBUG: User not found in database.")
             flash('Email not found. Please Register first.', 'danger')
             
     return render_template('login.html')
@@ -115,7 +124,7 @@ def dashboard():
     items = PantryItem.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard.html', items=items)
 
-@app.route('/delete/<int:id>')
+@app.route('/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_item(id):
     item = PantryItem.query.get(id)
@@ -129,8 +138,6 @@ def delete_item(id):
 @login_required
 def scan():
     if request.method == 'POST':
-        print("DEBUG: Scan request received!") 
-        
         if 'image' not in request.files:
             flash('No file part', 'danger')
             return redirect(request.url)
@@ -145,26 +152,26 @@ def scan():
             try:
                 filename = secure_filename(file.filename)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                
                 file.save(filepath)
-                print(f"DEBUG: File saved to {filepath}") 
 
-                print("DEBUG: Calling AI model...") 
-                
                 label, confidence = identify_food(filepath) 
                 
-                print(f"DEBUG: AI predicted: {label} with confidence {confidence}") 
+                logger.info(f"AI predicted: {label} with confidence {confidence}%")
+
+                # Only save items with confidence >= 60%
+                if confidence < 60:
+                    flash(f'AI is not confident enough. It looks like "{label}" ({confidence}% confidence). Try a clearer photo.', 'warning')
+                    return redirect(url_for('scan'))
 
                 new_item = PantryItem(name=label, user_id=current_user.id)
                 db.session.add(new_item)
                 db.session.commit()
-                print("DEBUG: Item saved to database!") 
                 
-                flash(f'Found {label}! Added to pantry.', 'success')
+                flash(f'Found {label} ({confidence}% confidence)! Added to pantry.', 'success')
                 return redirect(url_for('dashboard'))
 
             except Exception as e:
-                print(f"ERROR: {e}") 
+                logger.error(f"Error processing image: {e}")
                 flash(f'Error processing image: {str(e)}', 'danger')
                 return redirect(request.url)
 
@@ -188,12 +195,10 @@ def get_recipes():
     ingredient_string = ",".join(selected)
     
     # Spoonacular API Setup
-    API_KEY = "70d76ed0153049a6be5e0e8f2b92b7f8"  
-    
     url = "https://api.spoonacular.com/recipes/complexSearch"
     
     params = {
-        'apiKey': API_KEY,
+        'apiKey': SPOONACULAR_API_KEY,
         'includeIngredients': ingredient_string,
         'number': 12,
         'sort': 'min-missing-ingredients', 
@@ -204,22 +209,16 @@ def get_recipes():
 
     if diet_filter == 'veg':
         params['diet'] = 'vegetarian'
-        print("DEBUG: Searching for VEG recipes only.")
-    else:
-        print("DEBUG: Searching for ALL (Non-Veg) recipes.")
 
     try:
         response = requests.get(url, params=params)
         data = response.json()
         all_recipes = data.get('results', [])
-        strict_recipes = []
-        for recipe in all_recipes:
-            if recipe.get('missedIngredientCount', 100) <= 2:
-                strict_recipes.append(recipe)
-        recipes = strict_recipes
+        # Strict filter: only show recipes with 2 or fewer missing ingredients
+        recipes = [r for r in all_recipes if r.get('missedIngredientCount', 100) <= 2]
 
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Spoonacular API error: {e}")
         recipes = []
 
     return render_template('recipes.html', recipes=recipes, current_diet=diet_filter)

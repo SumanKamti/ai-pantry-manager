@@ -1,0 +1,10 @@
+flask
+flask-sqlalchemy
+flask-login
+werkzeug
+tensorflow
+numpy
+requests
+psycopg2-binary
+python-dotenv
+scikit-learn
