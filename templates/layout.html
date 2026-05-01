@@ -60,6 +60,16 @@
             margin-bottom: 10px;
             font-weight: 500;
         }
+
+        /* Mobile Responsive Base */
+        @media (max-width: 576px) {
+            .flash-container { 
+                left: 10px; right: 10px; 
+                min-width: auto;
+            }
+            .navbar-brand { font-size: 1.2rem; }
+            footer p { font-size: 0.8rem; }
+        }
     </style>
     
     {% block head %}{% endblock %}

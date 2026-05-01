@@ -23,6 +23,15 @@
     }
 
     
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
     .glass-card {
         background: rgba(255, 255, 255, 0.15); 
         backdrop-filter: blur(12px);
@@ -34,6 +43,7 @@
         color: white;
         max-width: 700px;
         margin-left: 5%; 
+        animation: fadeInUp 0.8s ease-out;
     }
 
     
@@ -90,8 +100,12 @@
         border-radius: 15px;
         transition: 0.3s;
         background: white;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        animation: fadeInUp 0.6s ease-out;
     }
+    .feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .feature-card:nth-child(2) { animation-delay: 0.25s; }
+    .feature-card:nth-child(3) { animation-delay: 0.4s; }
     
     .feature-card:hover {
         transform: translateY(-10px);
@@ -110,13 +124,21 @@
         font-size: 2.2rem;
         margin: 0 auto 1.5rem auto;
     }
+
+    /* Mobile Responsive */
+    @media (max-width: 576px) {
+        .hero-title { font-size: 2.2rem; }
+        .glass-card { padding: 2rem 1.5rem; margin-left: 0; }
+        .btn-gradient, .btn-outline-glow { padding: 12px 30px; font-size: 0.95rem; width: 100%; text-align: center; }
+        .feature-card { padding: 1.5rem !important; }
+    }
 </style>
 
 <div class="hero-section">
     <div class="container">
         <div class="glass-card">
-            <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-bold text-uppercase">
-                ✨ Capstone Project V1.0
+            <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-bold text-uppercase" style="animation: fadeIn 1s ease-out 0.3s both;">
+                🤖 AI-Powered
             </span>
             <h1 class="hero-title">
                 Smart Kitchen, <br>

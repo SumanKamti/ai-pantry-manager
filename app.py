@@ -163,6 +163,16 @@ def scan():
                     flash(f'AI is not confident enough. It looks like "{label}" ({confidence}% confidence). Try a clearer photo.', 'warning')
                     return redirect(url_for('scan'))
 
+                # Check for duplicate items (case-insensitive)
+                existing_item = PantryItem.query.filter(
+                    PantryItem.user_id == current_user.id,
+                    db.func.lower(PantryItem.name) == label.lower()
+                ).first()
+
+                if existing_item:
+                    flash(f'"{label}" is already in your pantry!', 'warning')
+                    return redirect(url_for('dashboard'))
+
                 new_item = PantryItem(name=label, user_id=current_user.id)
                 db.session.add(new_item)
                 db.session.commit()
@@ -200,11 +210,11 @@ def get_recipes():
     params = {
         'apiKey': SPOONACULAR_API_KEY,
         'includeIngredients': ingredient_string,
-        'number': 12,
+        'number': 20,
         'sort': 'min-missing-ingredients', 
         'fillIngredients': True,
         'addRecipeInformation': True, 
-        'ignorePantry': True
+        'ignorePantry': False
     }
 
     if diet_filter == 'veg':
@@ -214,8 +224,9 @@ def get_recipes():
         response = requests.get(url, params=params)
         data = response.json()
         all_recipes = data.get('results', [])
-        # Strict zero-waste filter: only show recipes where ALL ingredients are in pantry
-        recipes = [r for r in all_recipes if r.get('missedIngredientCount', 100) == 0]
+        # Allow up to 5 missing ingredients (model detects fruits/vegs only,
+        # so spices, oil, sugar etc. will naturally be "missing")
+        recipes = [r for r in all_recipes if r.get('missedIngredientCount', 100) <= 5]
 
     except Exception as e:
         logger.error(f"Spoonacular API error: {e}")

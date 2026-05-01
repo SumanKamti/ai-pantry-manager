@@ -98,6 +98,33 @@
     .edit-btn { color: #856404; background: #fff3cd; margin-right: 8px; }
     .edit-btn:hover { background: #ffc107; color: #000; }
 
+    /* Mobile Responsive */
+    @media (max-width: 576px) {
+        .action-card { padding: 1.5rem; text-align: center; }
+        .action-card h1 { font-size: 1.5rem; }
+        .action-card .d-flex.gap-3 { flex-direction: column; width: 100%; }
+        .btn-dashboard-lg { width: 100%; text-align: center; padding: 12px 20px; }
+        .pantry-item-card { padding: 1rem; }
+        .ingredient-icon { width: 40px; height: 40px; font-size: 1.2rem; margin-right: 0.7rem; }
+        .pantry-item-card h6 { font-size: 0.9rem; }
+        .stat-card { padding: 1rem !important; }
+        .stat-card h3 { font-size: 1.3rem !important; }
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        border: 1px solid #e9ecef;
+        transition: 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
 </style>
 
 <div class="dashboard-bg">
@@ -122,16 +149,38 @@
             </div>
         </div>
 
+        <!-- Stats Bar -->
+        <div class="row g-3 mb-4">
+            <div class="col-4">
+                <div class="stat-card">
+                    <h3 class="fw-bold text-success mb-1">{{ items|length }}</h3>
+                    <p class="text-muted small mb-0">Total Items</p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card">
+                    <h3 class="fw-bold text-warning mb-1">{{ items|selectattr('name', 'in', ['apple','banana','mango','orange','strawberry','watermelon','pineapple','papaya','guava','kiwi','cherry','plum','peach','apricot','pomegranate','fig','dates','lychee','Blueberry','Gooseberry','lime','coconut','custard apple','starfruit','avocado'])|list|length }}</h3>
+                    <p class="text-muted small mb-0">Fruits</p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card">
+                    <h3 class="fw-bold text-info mb-1">{{ items|rejectattr('name', 'in', ['apple','banana','mango','orange','strawberry','watermelon','pineapple','papaya','guava','kiwi','cherry','plum','peach','apricot','pomegranate','fig','dates','lychee','Blueberry','Gooseberry','lime','coconut','custard apple','starfruit','avocado'])|list|length }}</h3>
+                    <p class="text-muted small mb-0">Vegetables & Others</p>
+                </div>
+            </div>
+        </div>
+
         <h4 class="fw-bold text-dark mb-4 border-start border-4 border-success ps-3">Your Inventory</h4>
         
         {% if items %}
         <div class="row g-3">
             {% for item in items %}
-            <div class="col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3">
                 <div class="pantry-item-card">
                     <div class="d-flex align-items-center">
-                        <div class="ingredient-icon">
-                            <i class="bi bi-basket"></i>
+                        <div class="ingredient-icon" data-item-name="{{ item.name }}">
+                            <span class="food-emoji">🥗</span>
                         </div>
                         <div>
                             <h6 class="fw-bold mb-0 text-capitalize">{{ item.name }}</h6>
@@ -186,4 +235,30 @@
 
     </div>
 </div>
+
+<script>
+    // Food emoji mapping for all 53 AI model classes
+    const foodEmojis = {
+        'apple': '🍎', 'banana': '🍌', 'mango': '🥭', 'orange': '🍊',
+        'strawberry': '🍓', 'watermelon': '🍉', 'pineapple': '🍍', 'cherry': '🍒',
+        'tomato': '🍅', 'potato': '🥔', 'carrot': '🥕', 'onion': '🧅',
+        'cabbage': '🥬', 'lettuce': '🥬', 'spinach': '🥬', 'cauliflower': '🥦',
+        'capsicum': '🫑', 'cucumber': '🥒', 'peas': '🫛', 'coconut': '🥥',
+        'avocado': '🥑', 'eggs': '🥚', 'paneer': '🧀', 'lemon': '🍋', 'lime': '🍋',
+        'peach': '🍑', 'plum': '🫐', 'pomegranate': '🍎', 'papaya': '🍈',
+        'guava': '🍐', 'kiwi': '🥝', 'dates': '🌴', 'fig': '🫒',
+        'blueberry': '🫐', 'gooseberry': '🫐', 'beetroot': '🟣', 'radish': '🟣',
+        'brinjal': '🍆', 'okra(bhindi)': '🟢', 'sweet potato': '🍠',
+        'green chili': '🌶️', 'mint': '🌿', 'walnut': '🌰', 'almond': '🌰',
+        'cashew(kaju)': '🌰', 'pista': '🌰', 'taro root': '🟤',
+        'lychee': '🍇', 'custard apple': '🍏', 'starfruit': '⭐',
+        'amaranth leaves': '🌿', 'mustard greens': '🥬', 'cluster beans(guvar)': '🟢'
+    };
+
+    document.querySelectorAll('.ingredient-icon[data-item-name]').forEach(function(el) {
+        const name = el.getAttribute('data-item-name').toLowerCase();
+        const emoji = foodEmojis[name] || '🥗';
+        el.querySelector('.food-emoji').textContent = emoji;
+    });
+</script>
 {% endblock %}

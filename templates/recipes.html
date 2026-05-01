@@ -7,7 +7,7 @@
     .recipe-bg {
         background-color: #f8f9fa;
         min-height: 90vh;
-        padding: 3rem 0;
+        padding: 2rem 0;
     }
 
     .recipe-card {
@@ -142,6 +142,17 @@
         color: white !important; 
         box-shadow: 0 4px 12px rgba(25, 135, 84, 0.4);
     }
+
+    /* Mobile Responsive Fixes */
+    @media (max-width: 576px) {
+        .recipe-bg { padding: 1rem 0; }
+        .recipe-bg h2 { font-size: 1.4rem; }
+        .recipe-bg .d-flex.justify-content-between { flex-direction: column; gap: 10px; }
+        .recipe-bg .btn-outline-dark { align-self: flex-start; }
+        .nav-pills .nav-link { padding: 8px 20px; font-size: 0.9rem; }
+        .card-img-wrapper { height: 180px; }
+        .recipe-title { font-size: 1rem; }
+    }
 </style>
 
 <div class="recipe-bg">
@@ -195,8 +206,9 @@
                                   <div class="meta-item"><i class="bi bi-clock"></i> {{ recipe.readyInMinutes }} mins</div>
                                   <div class="meta-item"><i class="bi bi-people"></i> {{ recipe.servings }} servings</div>
                               </div>
-                              <div class="ingredient-status" style="background: #e8f5e9; justify-content: center;">
-                                  <span class="status-has"><i class="bi bi-check-circle-fill"></i> All {{ recipe.usedIngredientCount }} ingredients in pantry ✓</span>
+                              <div class="ingredient-status">
+                                  <span class="status-has"><i class="bi bi-check-circle-fill"></i> Has: {{ recipe.usedIngredientCount }}</span>
+                                  <span class="status-missing"><i class="bi bi-cart"></i> Missing: {{ recipe.missedIngredientCount }}</span>
                               </div>
                               <a href="{{ recipe.spoonacularSourceUrl }}" target="_blank" class="btn-view">
                                   View Full Recipe <i class="bi bi-arrow-right ms-1"></i>
@@ -230,8 +242,9 @@
                                   <div class="meta-item"><i class="bi bi-clock"></i> {{ recipe.readyInMinutes }} mins</div>
                                   <div class="meta-item"><i class="bi bi-people"></i> {{ recipe.servings }} servings</div>
                               </div>
-                              <div class="ingredient-status" style="background: #e8f5e9; justify-content: center;">
-                                  <span class="status-has"><i class="bi bi-check-circle-fill"></i> All {{ recipe.usedIngredientCount }} ingredients in pantry ✓</span>
+                              <div class="ingredient-status">
+                                  <span class="status-has"><i class="bi bi-check-circle-fill"></i> Has: {{ recipe.usedIngredientCount }}</span>
+                                  <span class="status-missing"><i class="bi bi-cart"></i> Missing: {{ recipe.missedIngredientCount }}</span>
                               </div>
                               <a href="{{ recipe.spoonacularSourceUrl }}" target="_blank" class="btn-view">
                                   View Full Recipe <i class="bi bi-arrow-right ms-1"></i>
