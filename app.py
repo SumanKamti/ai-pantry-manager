@@ -104,11 +104,8 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
-    # 1. Clear stuck messages before logging out
     session.pop('_flashes', None)
-    # 2. Log out the user
     logout_user()
-    # 3. Add the clean logout message
     flash('Logged out successfully.', 'success')
     return redirect(url_for('home'))
 
@@ -190,7 +187,7 @@ def get_recipes():
 
     ingredient_string = ",".join(selected)
     
-    # 3. Spoonacular API Setup
+    # Spoonacular API Setup
     API_KEY = "70d76ed0153049a6be5e0e8f2b92b7f8"  
     
     url = "https://api.spoonacular.com/recipes/complexSearch"
@@ -214,7 +211,13 @@ def get_recipes():
     try:
         response = requests.get(url, params=params)
         data = response.json()
-        recipes = data.get('results', [])
+        all_recipes = data.get('results', [])
+        strict_recipes = []
+        for recipe in all_recipes:
+            if recipe.get('missedIngredientCount', 100) <= 2:
+                strict_recipes.append(recipe)
+        recipes = strict_recipes
+
     except Exception as e:
         print(f"Error: {e}")
         recipes = []
